@@ -16,6 +16,8 @@ from bson.binary import Binary
 import json
 import numpy as np
 
+clf = {}
+
 class PrintHandlers(BaseHandler):
     def get(self):
         '''Write out to screen the handlers used
@@ -70,12 +72,11 @@ class UpdateModelForDatasetId(BaseHandler):
             
             model = tc.classifier.create(data,target='target',verbose=0)# training
             yhat = model.predict(data)
-            self.clf = model
+            clf[dsid] = model
             acc = sum(yhat==data['target'])/float(len(data))
             # save model for use later, if desired
             model.save('../models/turi_model_dsid%d'%(dsid))
             
-
         # send back the resubstitution accuracy
         # if training takes a while, we are blocking tornado!! No!!
         self.write_json({"resubAccuracy":acc})
@@ -107,9 +108,15 @@ class PredictOneFromDatasetId(BaseHandler):
         if(self.clf == []):
             print('Loading Model From file')
             self.clf = tc.load_model('../models/turi_model_dsid%d'%(dsid))
-  
 
-        predLabel = self.clf.predict(fvals);
+
+        if dsid not in clf:
+            self.write_json({"error": "Model not found for the provided DSID"})
+            return
+        
+        model = clf[dsid]
+  
+        predLabel = model.predict(fvals);
         self.write_json({"prediction":str(predLabel)})
 
     def get_features_as_SFrame(self, vals):
