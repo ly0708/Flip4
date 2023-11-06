@@ -57,6 +57,8 @@ class ViewController: UIViewController, URLSessionDelegate {
     @IBOutlet weak var largeMotionMagnitude: UIProgressView!
     @IBOutlet weak var stepper: UIStepper!
     
+    @IBOutlet weak var errorLabel: UILabel!
+    
     // MARK: Class Properties with Observers
     enum CalibrationStage {
         case notCalibrating
@@ -360,15 +362,22 @@ class ViewController: UIViewController, URLSessionDelegate {
                                 print("Response:\n",res)
                             }
                         }
-                        else{ // no error we are aware of
-                            let jsonDictionary = self.convertDataToDictionary(with: data)
-                            
-                            let labelResponse = jsonDictionary["prediction"]!
-                            print(labelResponse)
-                            self.displayLabelResponse(labelResponse as! String)
-
-                        }
-                                                                    
+            else{ // no error we are aware of
+                let jsonDictionary = self.convertDataToDictionary(with: data)
+                
+                do{
+                    let labelResponse = try jsonDictionary["prediction"]!
+                    print(labelResponse)
+                    self.displayLabelResponse(labelResponse as! String)
+                    
+                }
+                catch{
+                    self.errorLabel.text = "Model has not been trained."
+                    print("Model has not been trained.")
+                   
+                    
+                }
+            }
         })
         
         postTask.resume() // start the task
@@ -425,6 +434,7 @@ class ViewController: UIViewController, URLSessionDelegate {
                     
                     if let resubAcc = jsonDictionary["resubAccuracy"]{
                         print("Resubstitution Accuracy is", resubAcc)
+                    
                     }
                 }
                                                                     
