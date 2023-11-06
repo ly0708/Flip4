@@ -364,7 +364,7 @@ class ViewController: UIViewController, URLSessionDelegate {
                         }
             else{ // no error we are aware of
                 let jsonDictionary = self.convertDataToDictionary(with: data)
-                
+                //Errors were happening as jsonDictionary can be nil
                 do{
                     let labelResponse = try jsonDictionary["prediction"]!
                     print(labelResponse)
