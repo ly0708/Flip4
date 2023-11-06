@@ -372,8 +372,11 @@ class ViewController: UIViewController, URLSessionDelegate {
                     
                 }
                 catch{
+                    
                     self.errorLabel.text = "Model has not been trained."
                     print("Model has not been trained.")
+                    let labelResponse = "Model has not been trained."
+                    self.displayNoModelResponse(self.errorLabel, labelResponse: labelResponse)
                    
                     
                 }
@@ -403,6 +406,15 @@ class ViewController: UIViewController, URLSessionDelegate {
         }
     }
     
+    func displayNoModelResponse(_ label:UILabel, labelResponse:String){
+        
+            DispatchQueue.main.async{
+                // update label when set
+                self.errorLabel.layer.add(self.animation, forKey: nil)
+                self.errorLabel.text = labelResponse
+            }
+        
+    }
     func blinkLabel(_ label:UILabel){
         DispatchQueue.main.async {
             self.setAsCalibrating(label)
@@ -434,6 +446,19 @@ class ViewController: UIViewController, URLSessionDelegate {
                     
                     if let resubAcc = jsonDictionary["resubAccuracy"]{
                         print("Resubstitution Accuracy is", resubAcc)
+                        if( "\(resubAcc)" == "-1"){
+                            
+                            print("Model has not been trained.")
+                            let labelResponse = "No Model for: \(self.dsid)"
+                            self.displayNoModelResponse(self.errorLabel, labelResponse: labelResponse)
+                        }
+                        
+                        else{
+                            
+                            print("Model has been trained.")
+                            let labelResponse = "Model for: \(self.dsid)"
+                            self.displayNoModelResponse(self.errorLabel, labelResponse: labelResponse)
+                        }
                     
                     }
                 }
